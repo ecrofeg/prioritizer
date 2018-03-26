@@ -5,25 +5,33 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Redis;
 use GuzzleHttp\Client;
 
-class IssuesController extends Controller
-{
+class IssuesController extends Controller {
+	
+	const BUGS_DAY_INDEX = '3';
+	const DEADLINE_FOR_PLAN_ID = 25;
+	const NEED_COMMENTS_STATUS_ID = 4;
+	
 	protected $prioritiesWeight = [
-		'3' => 0,
-		'4' => 1,
-		'5' => 2,
-		'6' => 3,
-		'7' => 4
+		'3' => 0, // низкий
+		'4' => 10, // средний
+		'5' => 20, // высокий
+		'6' => 100, // критический
+		'7' => 200, // блокер
 	];
 	
 	protected $client = null;
 	
+	protected $isBugsDay = false;
+	
 	public function __construct() {
 		$this->client = new Client([
 			'base_uri' => env('REDMINE_API_URL'),
-			'headers' => [
-				'X-Redmine-API-Key' => env('REDMINE_API_KEY')
-			]
+			'headers'  => [
+				'X-Redmine-API-Key' => env('REDMINE_API_KEY'),
+			],
 		]);
+		
+		$this->isBugsDay = date('N') === static::BUGS_DAY_INDEX;
 	}
 	
 	public function index() {
@@ -64,6 +72,37 @@ class IssuesController extends Controller
 	 */
 	protected function getPriorityForIssue(\stdClass $issue): int {
 		$result = $this->prioritiesWeight[$issue->priority->id];
+		$issueIsInPlan = $this->issueIsInPlan($issue);
+		
+		if ($issue->status->id === static::NEED_COMMENTS_STATUS_ID) {
+			$result += 15;
+		}
+		
+		if ($issueIsInPlan) {
+			$result += $this->isBugsDay ? -15 : 15;
+		}
+		
+		$issue->rating = $result;
+		
+		return $result;
+	}
+	
+	/**
+	 * @param \stdClass $issue
+	 *
+	 * @return bool
+	 */
+	protected function issueIsInPlan(\stdClass $issue): bool {
+		$result = false;
+		
+		if (isset($issue->custom_fields)) {
+			foreach ($issue->custom_fields as $field) {
+				if ($field->id === static::DEADLINE_FOR_PLAN_ID && $field->value) {
+					$result = true;
+					false;
+				}
+			}
+		}
 		
 		return $result;
 	}
@@ -74,7 +113,6 @@ class IssuesController extends Controller
 	 * @return array
 	 */
 	protected function error(string $text) {
-		var_dump($text);
 		return abort(500, $text);
 	}
 	
@@ -100,7 +138,7 @@ class IssuesController extends Controller
 	 */
 	protected function makeRedmineRequest(string $uri, array $params = []): object {
 		$defaultParams = [
-			'assigned_to_id' => 'me'
+			'assigned_to_id' => 'me',
 		];
 		
 		$requestParams = array_merge($defaultParams, $params);
