@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-// use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Redis;
 use GuzzleHttp\Client;
 
 class IssuesController extends Controller
@@ -29,20 +29,28 @@ class IssuesController extends Controller
 	public function index() {
 		try {
 			$user = $this->getCurrentUser();
-			$response = $this->makeRedmineRequest('issues');
+			$issues = Redis::get('issues:user:' . $user->id);
 			
-			if (isset($response->issues)) {
-				$issues = $response->issues;
-				
-				usort($issues, function ($a, $b) {
-					return $this->getPriorityForIssue($b) <=> $this->getPriorityForIssue($a);
-				});
-				
-				return $issues;
+			if ($issues) {
+				$issues = json_decode($issues);
 			}
 			else {
-				throw new \Exception('No issues found');
+				$response = $this->makeRedmineRequest('issues');
+				
+				if (isset($response->issues)) {
+					$issues = $response->issues;
+					Redis::set('issues:user:' . $user->id, json_encode($issues));
+				}
+				else {
+					throw new \Exception('No issues found');
+				}
 			}
+			
+			usort($issues, function ($a, $b) {
+				return $this->getPriorityForIssue($b) <=> $this->getPriorityForIssue($a);
+			});
+			
+			return $issues;
 		}
 		catch (\Exception $exception) {
 			return $this->error($exception->getMessage());
@@ -66,6 +74,7 @@ class IssuesController extends Controller
 	 * @return array
 	 */
 	protected function error(string $text) {
+		var_dump($text);
 		return abort(500, $text);
 	}
 	
