@@ -8,21 +8,6 @@ use GuzzleHttp\Client;
 
 class IssuesController extends Controller {
 	
-	const BUGS_DAY_INDEX = '3';
-	const DEADLINE_FOR_PLAN_ID = 25;
-	const NEED_COMMENTS_STATUS_ID = 4;
-	
-	/**
-	 * @var array
-	 */
-	protected $prioritiesWeight = [
-		'3' => 0, // низкий
-		'4' => 10, // средний
-		'5' => 20, // высокий
-		'6' => 100, // критический
-		'7' => 200, // блокер
-	];
-	
 	/**
 	 * @var Client
 	 */
@@ -82,6 +67,21 @@ class IssuesController extends Controller {
 			return $this->error($exception->getMessage());
 		}
 	}
+	
+	const BUGS_DAY_INDEX = '3';
+	const DEADLINE_FOR_PLAN_ID = 25;
+	const NEED_COMMENTS_STATUS_ID = 4;
+	
+	/**
+	 * @var array
+	 */
+	protected $prioritiesWeight = [
+		'3' => 0, // низкий
+		'4' => 10, // средний
+		'5' => 20, // высокий
+		'6' => 100, // критический
+		'7' => 200, // блокер
+	];
 	
 	/**
 	 * @param \stdClass $issue
