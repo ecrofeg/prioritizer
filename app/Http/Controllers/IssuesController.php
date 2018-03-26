@@ -34,6 +34,8 @@ class IssuesController extends Controller {
 	protected $isBugsDay = false;
 	
 	public function __construct() {
+		header('Access-Control-Allow-Origin: *');
+		
 		$this->client = new Client([
 			'base_uri' => env('REDMINE_API_URL'),
 			'headers'  => [
@@ -45,33 +47,36 @@ class IssuesController extends Controller {
 	}
 	
 	/**
-	 * @return array|mixed
+	 * @param string $userId
+	 *
+	 * @return array
 	 */
-	public function index() {
+	public function index(string $userId = 'me') {
 		try {
-			$user = $this->getCurrentUser();
-			$issues = Redis::get('issues:user:' . $user->id);
+			$issues = Redis::get('issues:user:' . $userId);
 			
 			if ($issues) {
-				$issues = json_decode($issues);
+				$resultIssues = json_decode($issues);
 			}
 			else {
-				$response = $this->makeRedmineRequest('issues');
+				$response = $this->makeRedmineRequest('issues', [
+					'assigned_to_id' => $userId
+				]);
 				
 				if (isset($response->issues)) {
-					$issues = $response->issues;
-					Redis::set('issues:user:' . $user->id, json_encode($issues));
+					$resultIssues = $response->issues;
+					Redis::set('issues:user:' . $userId, json_encode($resultIssues));
 				}
 				else {
 					throw new \Exception('No issues found');
 				}
 			}
 			
-			usort($issues, function ($a, $b) {
+			usort($resultIssues, function ($a, $b) {
 				return $this->getPriorityForIssue($b) <=> $this->getPriorityForIssue($a);
 			});
 			
-			return $issues;
+			return $resultIssues;
 		}
 		catch (\Exception $exception) {
 			return $this->error($exception->getMessage());
@@ -109,7 +114,7 @@ class IssuesController extends Controller {
 			}
 			else {
 				// Если дедлайн не просрочен, то пропорционально повышаем приоритет.
-				$result += exp((1 / $daysLeft) + 1);
+				$result += -($daysLeft * 0.5);
 			}
 		}
 		else {

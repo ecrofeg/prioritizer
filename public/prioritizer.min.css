@@ -1,0 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #f7f7f7;
+}
+
+.prioritizer a {
+  color: #349ef3;
+  text-decoration: none;
+  border-bottom: 1px solid #349ef3;
+}
+
+.prioritizer__wrapper {
+  width: 1280px;
+  margin: 20px auto 0;
+  padding: 20px;
+}
+
+.prioritizer-title {
+  text-align: center;
+}
+
+.prioritizer-loader {
+  text-align: center;
+}

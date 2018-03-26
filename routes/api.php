@@ -1,4 +1,4 @@
 <?php
 
 
-Route::get('issues', 'IssuesController@index');
+Route::get('issues/{id}', 'IssuesController@index');
