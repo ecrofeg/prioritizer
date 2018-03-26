@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Redis;
 use GuzzleHttp\Client;
 
@@ -72,14 +73,36 @@ class IssuesController extends Controller {
 	 */
 	protected function getPriorityForIssue(\stdClass $issue): int {
 		$result = $this->prioritiesWeight[$issue->priority->id];
-		$issueIsInPlan = $this->issueIsInPlan($issue);
+		$deadlineForIssue = $this->issueIsInPlan($issue);
 		
+		// Если задача со статусом "Требует комментария", то повышаем приоритет.
+		// Такие задачи должны разбираться постоянно, и если задача занимает
+		// больше 5-10 минут, то надо сменить ей статус на другой.
 		if ($issue->status->id === static::NEED_COMMENTS_STATUS_ID) {
 			$result += 15;
 		}
 		
-		if ($issueIsInPlan) {
+		if ($deadlineForIssue) {
+			// Если задача плановая и сегодня не среда, то повышаем ее приоритет.
+			// Если сегодня среда, то понижаем приоритет.
 			$result += $this->isBugsDay ? -15 : 15;
+			
+			// Парсим дедлайн для плановой задачи.
+			$deadlineDate = Carbon::parse($deadlineForIssue);
+			$daysLeft = Carbon::now()->diffInDays($deadlineDate, false);
+			
+			if ($daysLeft <= 0) {
+				// Если дедлайн просрочен, то резко повышаем приоритет задачи.
+				$result += 15;
+			}
+			else {
+				// Если дедлайн не просрочен, то пропорционально повышаем приоритет.
+				$result += exp((1 / $daysLeft) + 1);
+			}
+		}
+		else {
+			// Если задача из текучки (вне плана) и сегодня среда, то повышаем ее приоритет.
+			$result += $this->isBugsDay ? 15 : -15;
 		}
 		
 		$issue->rating = $result;
@@ -90,15 +113,15 @@ class IssuesController extends Controller {
 	/**
 	 * @param \stdClass $issue
 	 *
-	 * @return bool
+	 * @return string
 	 */
-	protected function issueIsInPlan(\stdClass $issue): bool {
-		$result = false;
+	protected function issueIsInPlan(\stdClass $issue): string {
+		$result = '';
 		
 		if (isset($issue->custom_fields)) {
 			foreach ($issue->custom_fields as $field) {
 				if ($field->id === static::DEADLINE_FOR_PLAN_ID && $field->value) {
-					$result = true;
+					$result = $field->value;
 					false;
 				}
 			}
