@@ -26,3 +26,8 @@ body {
 .prioritizer-loader {
   text-align: center;
 }
+
+.prioritizer-date_urgent {
+  color: #F44336;
+  border-bottom: 1px solid;
+}

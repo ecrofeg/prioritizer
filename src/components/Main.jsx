@@ -1,6 +1,9 @@
 import React from 'react';
+import moment from 'moment';
+import classnames from 'classnames';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
+import Tooltip from 'material-ui/Tooltip';
 import { CircularProgress } from 'material-ui/Progress';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 
@@ -35,7 +38,30 @@ class Main extends React.Component {
 	getPhaseDeadline(task) {
 		const deadline = task.custom_fields.find(field => field.id === 25);
 
-		return deadline && deadline.value ? <Typography>{deadline.value}</Typography> : '—';
+		if (!deadline || !deadline.value) {
+			return '—';
+		}
+		else {
+			const isUrgent = moment(deadline.value).isSame(moment(), 'day') || (moment(deadline.value).diff(moment(), 'days') < 2);
+
+			let date = (
+				<Typography>
+					<span className={classnames('prioritizer-date', { 'prioritizer-date_urgent': isUrgent })}>
+						{deadline.value}
+					</span>
+				</Typography>
+			);
+
+			if (isUrgent) {
+				date = (
+					<Tooltip title="Deadline is coming" placement="top">
+						{date}
+					</Tooltip>
+				);
+			}
+
+			return date;
+		}
 	}
 
 	render() {

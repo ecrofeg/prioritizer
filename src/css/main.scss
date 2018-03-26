@@ -27,4 +27,11 @@ body {
 	&-loader {
 		text-align: center;
 	}
+
+	&-date {
+		&_urgent {
+			color: #F44336;
+			border-bottom: 1px solid;
+		}
+	}
 }
