@@ -12,6 +12,9 @@ class IssuesController extends Controller {
 	const DEADLINE_FOR_PLAN_ID = 25;
 	const NEED_COMMENTS_STATUS_ID = 4;
 	
+	/**
+	 * @var array
+	 */
 	protected $prioritiesWeight = [
 		'3' => 0, // низкий
 		'4' => 10, // средний
@@ -20,8 +23,14 @@ class IssuesController extends Controller {
 		'7' => 200, // блокер
 	];
 	
+	/**
+	 * @var Client
+	 */
 	protected $client = null;
 	
+	/**
+	 * @var bool
+	 */
 	protected $isBugsDay = false;
 	
 	public function __construct() {
@@ -35,6 +44,9 @@ class IssuesController extends Controller {
 		$this->isBugsDay = date('N') === static::BUGS_DAY_INDEX;
 	}
 	
+	/**
+	 * @return array|mixed
+	 */
 	public function index() {
 		try {
 			$user = $this->getCurrentUser();
