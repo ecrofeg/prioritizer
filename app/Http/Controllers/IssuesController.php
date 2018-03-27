@@ -107,7 +107,7 @@ class IssuesController extends Controller {
 		// Такие задачи должны разбираться постоянно, и если задача занимает
 		// больше 5-10 минут, то надо сменить ей статус на другой.
 		if ($issue->status->id === static::NEED_COMMENTS_STATUS_ID) {
-			$result += 15;
+			$result += 30;
 		}
 		
 		if ($deadlineForIssue) {
