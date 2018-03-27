@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redis;
 use GuzzleHttp\Client;
 
@@ -38,12 +39,13 @@ class IssuesController extends Controller {
 	 */
 	public function index(string $userId = 'me') {
 		try {
+			$forceUpdate = Input::get('forceUpdate', false);
 			$redisIssuesKey = 'issues:user:' . $userId;
 			$redisUserKey = 'user:' . $userId;
 			$issues = Redis::get($redisIssuesKey);
 			$user = Redis::get($redisUserKey);
 			
-			if ($user) {
+			if ($user && !$forceUpdate) {
 				$user = json_decode($user);
 			}
 			else {
@@ -53,7 +55,7 @@ class IssuesController extends Controller {
 				Redis::expire($redisUserKey, 300);
 			}
 			
-			if ($issues) {
+			if ($issues && !$forceUpdate) {
 				$issues = json_decode($issues);
 			}
 			else {

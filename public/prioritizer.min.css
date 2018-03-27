@@ -20,7 +20,14 @@ body {
 }
 
 .prioritizer-title {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prioritizer-title__icon {
+  margin-left: 10px;
+  cursor: pointer;
 }
 
 .prioritizer-loader {

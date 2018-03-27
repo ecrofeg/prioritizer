@@ -21,7 +21,14 @@ body {
 	}
 
 	&-title {
-		text-align: center;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		&__icon {
+			margin-left: 10px;
+			cursor: pointer;
+		}
 	}
 
 	&-loader {

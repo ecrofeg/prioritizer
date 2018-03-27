@@ -5,6 +5,7 @@ import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 import { CircularProgress } from 'material-ui/Progress';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
+import RefreshIcon from 'material-ui-icons/Refresh';
 
 class Main extends React.Component {
 	constructor() {
@@ -15,25 +16,39 @@ class Main extends React.Component {
 			user: null,
 			tasks: []
 		};
+
+		this.onRefreshClick = this.onRefreshClick.bind(this);
 	}
 
-	async loadTasks() {
+	async loadTasks(forced = false) {
 		const userId = window.location.search.replace('?user_id=', '');
-		const response = await fetch(`http://192.168.0.51:7771/api/issues/${userId}`);
+		let url = `http://192.168.0.51:7771/api/issues/${userId}`;
 
-		return await response.json();
+		if (forced === true) {
+			url += '?forceUpdate=true';
+		}
+
+		return await fetch(url).then(response => response.json());
 	}
 
-	componentDidMount() {
+	updatePage(forced = false) {
 		this.setState({
 			isLoading: true
 		});
 
-		this.loadTasks().then(response => this.setState({
+		this.loadTasks(forced).then(response => this.setState({
 			isLoading: false,
 			tasks: response.issues,
 			user: response.user
 		}));
+	}
+
+	componentDidMount() {
+		this.updatePage();
+	}
+
+	onRefreshClick() {
+		this.updatePage(true);
 	}
 
 	getPhaseDeadline(task) {
@@ -63,6 +78,10 @@ class Main extends React.Component {
 						<Typography variant="display1" gutterBottom={true}>
 							{this.state.user.firstname} {this.state.user.lastname}
 						</Typography>
+
+						<span className="prioritizer-title__icon" title="Refresh" onClick={this.onRefreshClick}>
+							<RefreshIcon color="secondary"/>
+						</span>
 					</div>
 				) : null}
 
