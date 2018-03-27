@@ -38,30 +38,39 @@ class IssuesController extends Controller {
 	 */
 	public function index(string $userId = 'me') {
 		try {
-			$issues = Redis::get('issues:user:' . $userId);
+			$redisIssuesKey = 'issues:user:' . $userId;
+			$redisUserKey = 'user:' . $userId;
+			$issues = Redis::get($redisIssuesKey);
+			$user = Redis::get($redisUserKey);
 			
-			if ($issues) {
-				$resultIssues = json_decode($issues);
+			if ($user) {
+				$user = json_decode($user);
 			}
 			else {
-				$response = $this->makeRedmineRequest('issues', [
-					'assigned_to_id' => $userId
-				]);
+				$user = $this->getUserInfo($userId === 'me' ? 'current' : $userId);
 				
-				if (isset($response->issues)) {
-					$resultIssues = $response->issues;
-					Redis::set('issues:user:' . $userId, json_encode($resultIssues));
-				}
-				else {
-					throw new \Exception('No issues found');
-				}
+				Redis::set($redisUserKey, json_encode($user));
+				Redis::expire($redisUserKey, 300);
 			}
 			
-			usort($resultIssues, function ($a, $b) {
+			if ($issues) {
+				$issues = json_decode($issues);
+			}
+			else {
+				$issues = $this->getIssuesForUser($userId);
+				
+				Redis::set($redisIssuesKey, json_encode($issues));
+				Redis::expire($redisIssuesKey, 300);
+			}
+			
+			usort($issues, function ($a, $b) {
 				return $this->getPriorityForIssue($b) <=> $this->getPriorityForIssue($a);
 			});
 			
-			return $resultIssues;
+			return [
+				'issues' => $issues,
+				'user'   => $user,
+			];
 		}
 		catch (\Exception $exception) {
 			return $this->error($exception->getMessage());
@@ -157,17 +166,37 @@ class IssuesController extends Controller {
 	}
 	
 	/**
+	 * @param string $userId
+	 *
 	 * @return object
 	 * @throws \Exception
 	 */
-	protected function getCurrentUser(): object {
-		$response = $this->makeRedmineRequest('users/current');
+	protected function getUserInfo(string $userId): object {
+		$response = $this->makeRedmineRequest('users/' . $userId);
 		
 		if (!isset($response->user)) {
-			throw new \Exception('Unauthorized');
+			throw new \Exception('User not found');
 		}
 		
 		return $response->user;
+	}
+	
+	/**
+	 * @param string $userId
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	protected function getIssuesForUser(string $userId): array {
+		$response = $this->makeRedmineRequest('issues', [
+			'assigned_to_id' => $userId,
+		]);
+		
+		if (!isset($response->issues)) {
+			throw new \Exception('No issues found');
+		}
+		
+		return $response->issues;
 	}
 	
 	/**

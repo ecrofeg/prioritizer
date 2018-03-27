@@ -3,7 +3,6 @@ import moment from 'moment';
 import classnames from 'classnames';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
-import Tooltip from 'material-ui/Tooltip';
 import { CircularProgress } from 'material-ui/Progress';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 
@@ -13,6 +12,7 @@ class Main extends React.Component {
 
 		this.state = {
 			isLoading: false,
+			user: null,
 			tasks: []
 		};
 	}
@@ -29,9 +29,10 @@ class Main extends React.Component {
 			isLoading: true
 		});
 
-		this.loadTasks().then(tasks => this.setState({
+		this.loadTasks().then(response => this.setState({
 			isLoading: false,
-			tasks
+			tasks: response.issues,
+			user: response.user
 		}));
 	}
 
@@ -44,41 +45,34 @@ class Main extends React.Component {
 		else {
 			const isUrgent = moment(deadline.value).isSame(moment(), 'day') || (moment(deadline.value).diff(moment(), 'days') < 2);
 
-			let date = (
+			return (
 				<Typography>
 					<span className={classnames('prioritizer-date', { 'prioritizer-date_urgent': isUrgent })}>
 						{deadline.value}
 					</span>
 				</Typography>
 			);
-
-			if (isUrgent) {
-				date = (
-					<Tooltip title="Deadline is coming" placement="top">
-						{date}
-					</Tooltip>
-				);
-			}
-
-			return date;
 		}
 	}
 
 	render() {
 		return <div className="prioritizer">
 			<Paper className="prioritizer__wrapper">
-				<div className="prioritizer-title">
-					<Typography variant="display1" gutterBottom={true}>
-						Tasks for today
-					</Typography>
-				</div>
+				{this.state.user ? (
+					<div className="prioritizer-title">
+						<Typography variant="display1" gutterBottom={true}>
+							{this.state.user.firstname} {this.state.user.lastname}
+						</Typography>
+					</div>
+				) : null}
 
-				{
-					this.state.isLoading ? (
+				{this.state.isLoading ?
+					(
 						<div className="prioritizer-loader">
 							<CircularProgress color="secondary"/>
 						</div>
-					) : (
+					) :
+					(
 						<Table>
 							<TableHead>
 								<TableRow>
@@ -121,8 +115,7 @@ class Main extends React.Component {
 								))}
 							</TableBody>
 						</Table>
-					)
-				}
+					)}
 			</Paper>
 		</div>;
 	}
