@@ -22,7 +22,7 @@ class Main extends React.Component {
 
 	async loadTasks(forced = false) {
 		const userId = window.location.search.replace('?user_id=', '');
-		let url = `http://mlsd.ru:9898/api/issues/${userId}`;
+		let url = `${window.location.origin}/api/issues/${userId}`;
 
 		if (forced === true) {
 			url += '?forceUpdate=true';
