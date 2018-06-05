@@ -7,6 +7,10 @@ body {
   background: #f7f7f7;
 }
 
+.prioritizer {
+  margin-bottom: 30px;
+}
+
 .prioritizer a {
   color: #349ef3;
   text-decoration: none;
