@@ -189,14 +189,36 @@ class IssuesController extends Controller {
 	 * @throws \Exception
 	 */
 	protected function getIssuesForUser(string $userId): array {
-		$response = $this->makeRedmineRequest('issues', [
-			'assigned_to_id' => $userId ? $userId : 'current',
-		]);
+		$limit = 100;
+		$offset = 0;
+
+		$response = $this->getIssues($userId, $limit, $offset);
+		$issues = $response->issues;
+
+		$totalCount = (int) $response->total_count;
+		$iterations = ceil($totalCount / $limit);
 		
-		if (!isset($response->issues)) {
-			throw new \Exception('No issues found');
+		for ($i = 1; $i < $iterations; $i++) {
+			$offset = $i * 100;
+			$response = $this->getIssues($userId, $limit, $offset);
+			$issues = array_merge($issues, $response->issues);
 		}
 		
-		return $response->issues;
+		return $issues;
+	}
+
+	/**
+	 * @param int $userId
+	 * @param int $limit
+	 * @param int $offset
+	 * 
+	 * @return \stdClass
+	 */
+	protected function getIssues($userId, $limit, $offset): \stdClass {
+		return $this->makeRedmineRequest('issues', [
+			'assigned_to_id' => $userId ? $userId : 'current',
+			'limit'          => $limit,
+			'offset'         => $offset,
+		]);
 	}
 }

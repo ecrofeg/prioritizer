@@ -63,7 +63,7 @@ class UsersController extends Controller {
 	 *
 	 * @return \stdClass
 	 */
-	protected function getUsers($limit, $offset) {
+	protected function getUsers($limit, $offset): \stdClass {
 		return $this->makeRedmineRequest('users', [
 			// Get only active users.
 			'status' => 1,
