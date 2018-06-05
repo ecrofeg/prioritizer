@@ -100,6 +100,14 @@ const config = {
 				})
 			},
 
+			{
+				test: /\.css$/,
+				loader: 'css-loader',
+				options: {
+					minimize: !isDevMode
+				}
+			},
+
 			// Handling fonts and converting them to base64 format.
 			{
 				test: /\.woff$/,

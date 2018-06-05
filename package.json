@@ -37,13 +37,14 @@
         "webpack": "^3.5.5"
     },
     "dependencies": {
-        "classnames": "^2.2.5",
         "@material-ui/core": "^1.2.0",
         "@material-ui/icons": "^1.1.0",
+        "classnames": "^2.2.5",
         "moment": "^2.21.0",
         "react": "^16.2.0",
         "react-dom": "^16.2.0",
         "react-redux": "^5.0.7",
+        "react-select": "^1.2.1",
         "redux": "^3.7.2",
         "redux-thunk": "^2.2.0",
         "reselect": "^3.0.1"
