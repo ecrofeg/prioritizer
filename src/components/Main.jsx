@@ -300,6 +300,7 @@ class Main extends React.Component {
 		else {
 			const deadlineDate = moment(deadline.value);
 			const today = moment();
+			console.log(today);
 			const isUrgent = deadlineDate && (deadlineDate.isSame(today, 'day') || (deadlineDate.diff(today, 'days') < 2));
 
 			return (
@@ -362,6 +363,7 @@ class Main extends React.Component {
 									<TableRow>
 										<TableCell>ID</TableCell>
 										<TableCell>Type</TableCell>
+										<TableCell>Project</TableCell>
 										<TableCell>Status</TableCell>
 										<TableCell>Subject</TableCell>
 										<TableCell>Phase Deadline</TableCell>
@@ -380,6 +382,12 @@ class Main extends React.Component {
 													<a href={`http://helpdesk.nemo.travel/issues/${task.id}`} target="_blank">
 														{task.id}
 													</a>
+												</Typography>
+											</TableCell>
+
+											<TableCell className="prioritizer-cell prioritizer-cell_project">
+												<Typography>
+													{task.project.name}
 												</Typography>
 											</TableCell>
 
