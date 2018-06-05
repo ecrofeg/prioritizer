@@ -305,7 +305,7 @@ class Main extends React.Component {
 			return (
 				<Typography>
 					<span className={classnames('prioritizer-date', { 'prioritizer-date_urgent': isUrgent })}>
-						{deadline.value}
+						{deadlineDate.format('DD.MM.YYYY')}
 					</span>
 				</Typography>
 			);
