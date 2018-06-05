@@ -103,12 +103,19 @@ class IssuesController extends Controller {
 	protected function getPriorityForIssue(\stdClass $issue): int {
 		$result = $this->prioritiesWeight[$issue->priority->id];
 		$deadlineForIssue = $this->issueIsInPlan($issue);
-		
-		// Если задача со статусом "Требует комментария", то повышаем приоритет.
-		// Такие задачи должны разбираться постоянно, и если задача занимает
-		// больше 5-10 минут, то надо сменить ей статус на другой.
-		if ($issue->status->id === static::NEED_COMMENTS_STATUS_ID) {
-			$result += 30;
+
+		switch ($issue->status->id) {
+			// Если задача со статусом "Требует комментария", то повышаем приоритет.
+			// Такие задачи должны разбираться постоянно, и если задача занимает
+			// больше 5-10 минут, то надо сменить ей статус на другой.
+			case static::NEED_COMMENTS_STATUS_ID:
+				$result += 30;
+				break;
+
+			// Задачи "В разработке" всегда отображаем сверху.
+			case static::IN_PROGRESS_STATUS_ID:
+				$result += 100;
+				break;
 		}
 		
 		if ($deadlineForIssue) {
