@@ -204,6 +204,7 @@ class Main extends React.Component {
 		};
 
 		this.onRefreshClick = this.onRefreshClick.bind(this);
+		this.onChangeClick = this.onChangeClick.bind(this);
 		this.selectUser = this.selectUser.bind(this);
 	}
 
@@ -255,7 +256,6 @@ class Main extends React.Component {
 	}
 
 	selectUser(data) {
-		console.log(data);
 		this.setState({
 			data
 		});
@@ -280,6 +280,17 @@ class Main extends React.Component {
 		this.updatePage(this.state.user.id, true);
 	}
 
+	onChangeClick(event) {
+		event.preventDefault();
+		event.stopPropagation();
+
+		this.getUsersList();
+
+		this.setState({
+			user: null
+		});
+	}
+
 	getPhaseDeadline(task) {
 		const deadline = task.custom_fields.find(field => field.id === 25);
 
@@ -287,7 +298,9 @@ class Main extends React.Component {
 			return '—';
 		}
 		else {
-			const isUrgent = moment(deadline.value).isSame(moment(), 'day') || (moment(deadline.value).diff(moment(), 'days') < 2);
+			const deadlineDate = moment(deadline.value);
+			const today = moment();
+			const isUrgent = deadlineDate && (deadlineDate.isSame(today, 'day') || (deadlineDate.diff(today, 'days') < 2));
 
 			return (
 				<Typography>
@@ -305,6 +318,14 @@ class Main extends React.Component {
 				{this.state.user ? (
 					<div className="prioritizer-title">
 						<div className="prioritizer-title__wrapper">
+							{!this.state.isLoading ? (
+								<span className="prioritizer-title__changeUser" onClick={this.onChangeClick}>
+									<Typography>
+										<a href="#">change</a>
+									</Typography>
+								</span>
+							) : null}
+
 							<Typography variant="display1">
 								{this.state.user.firstname} {this.state.user.lastname}
 							</Typography>
