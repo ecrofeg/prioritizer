@@ -9,6 +9,12 @@ use GuzzleHttp\Client;
 
 class IssuesController extends Controller {
 	
+	const BUGS_DAY_INDEX = '3';
+	const DEADLINE_FOR_PLAN_ID = 25;
+	const BUG_TRACKER_ID = 1;
+	const IN_PROGRESS_STATUS_ID = 2;
+	const NEED_COMMENTS_STATUS_ID = 4;
+	
 	/**
 	 * @var Client
 	 */
@@ -18,6 +24,17 @@ class IssuesController extends Controller {
 	 * @var bool
 	 */
 	protected $isBugsDay = false;
+	
+	/**
+	 * @var array
+	 */
+	protected $prioritiesWeight = [
+		'3' => 0, // низкий
+		'4' => 10, // средний
+		'5' => 20, // высокий
+		'6' => 100, // критический
+		'7' => 200, // блокер
+	];
 	
 	public function __construct() {
 		header('Access-Control-Allow-Origin: *');
@@ -36,63 +53,60 @@ class IssuesController extends Controller {
 	 * @param string $userId
 	 *
 	 * @return array
+	 * @throws \Exception
 	 */
 	public function index(string $userId = 'me') {
-		try {
-			$forceUpdate = Input::get('forceUpdate', false);
-			$redisIssuesKey = 'issues:user:' . $userId;
-			$redisUserKey = 'user:' . $userId;
-			$issues = Redis::get($redisIssuesKey);
-			$user = Redis::get($redisUserKey);
-			
-			if ($user && !$forceUpdate) {
-				$user = json_decode($user);
-			}
-			else {
-				$user = $this->getUserInfo($userId === 'me' ? 'current' : $userId);
-				
-				Redis::set($redisUserKey, json_encode($user));
-				Redis::expire($redisUserKey, 300);
-			}
-			
-			if ($issues && !$forceUpdate) {
-				$issues = json_decode($issues);
-			}
-			else {
-				$issues = $this->getIssuesForUser($userId);
-				
-				Redis::set($redisIssuesKey, json_encode($issues));
-				Redis::expire($redisIssuesKey, 300);
-			}
-			
-			usort($issues, function ($a, $b) {
-				return $this->getPriorityForIssue($b) <=> $this->getPriorityForIssue($a);
-			});
-			
-			return [
-				'issues' => $issues,
-				'user'   => $user,
-			];
+		$forceUpdate = Input::get('forceUpdate', false);
+		$redisIssuesKey = 'issues:user:' . $userId;
+		$redisUserKey = 'user:' . $userId;
+		$issues = Redis::get($redisIssuesKey);
+		$user = Redis::get($redisUserKey);
+		
+		if ($user && !$forceUpdate) {
+			$user = json_decode($user);
 		}
-		catch (\Exception $exception) {
-			return $this->error($exception->getMessage());
+		else {
+			$user = $this->getUserInfo($userId === 'me' ? 'current' : $userId);
+			
+			Redis::set($redisUserKey, json_encode($user));
+			Redis::expire($redisUserKey, 300);
 		}
+		
+		if ($issues && !$forceUpdate) {
+			$issues = json_decode($issues);
+		}
+		else {
+			$issues = $this->getIssuesForUser($userId);
+			$issues = array_map(function ($issue) {
+				return $this->parseIssue($issue);
+			}, $issues);
+			
+			Redis::set($redisIssuesKey, json_encode($issues));
+			Redis::expire($redisIssuesKey, 300);
+		}
+		
+		usort($issues, function ($a, $b) {
+			return $this->getPriorityForIssue($b) <=> $this->getPriorityForIssue($a);
+		});
+		
+		return [
+			'issues' => $issues,
+			'user'   => $user,
+		];
 	}
 	
-	const BUGS_DAY_INDEX = '3';
-	const DEADLINE_FOR_PLAN_ID = 25;
-	const NEED_COMMENTS_STATUS_ID = 4;
-	
 	/**
-	 * @var array
+	 * @param \stdClass $issue
+	 *
+	 * @return \stdClass
 	 */
-	protected $prioritiesWeight = [
-		'3' => 0, // низкий
-		'4' => 10, // средний
-		'5' => 20, // высокий
-		'6' => 100, // критический
-		'7' => 200, // блокер
-	];
+	protected function parseIssue(\stdClass $issue): \stdClass {
+		$issue->inProgress = $issue->status->id === static::IN_PROGRESS_STATUS_ID;
+		$issue->isBug = $issue->tracker->id === static::BUG_TRACKER_ID;
+		$issue->needComment = $issue->status->id === static::NEED_COMMENTS_STATUS_ID;
+		
+		return $issue;
+	}
 	
 	/**
 	 * @param \stdClass $issue
@@ -170,10 +184,10 @@ class IssuesController extends Controller {
 	/**
 	 * @param string $userId
 	 *
-	 * @return object
+	 * @return \stdClass
 	 * @throws \Exception
 	 */
-	protected function getUserInfo(string $userId): object {
+	protected function getUserInfo(string $userId): \stdClass {
 		$response = $this->makeRedmineRequest('users/' . $userId);
 		
 		if (!isset($response->user)) {
@@ -205,9 +219,9 @@ class IssuesController extends Controller {
 	 * @param string $uri
 	 * @param array $params
 	 *
-	 * @return object
+	 * @return \stdClass
 	 */
-	protected function makeRedmineRequest(string $uri, array $params = []): object {
+	protected function makeRedmineRequest(string $uri, array $params = []): \stdClass {
 		$defaultParams = [
 			'assigned_to_id' => 'me',
 		];

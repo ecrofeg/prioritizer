@@ -7,6 +7,45 @@ body {
 	background: #f7f7f7;
 }
 
+@mixin markedRow($color, $target) {
+	.prioritizer-cell {
+		*:not(a) {
+			color: inherit;
+		}
+	}
+
+	td:first-of-type {
+		position: relative;
+
+		&:before {
+			position: absolute;
+			left: 0;
+			top: 0;
+
+			height: 100%;
+			width: 7px;
+
+			content: '';
+			background: $color;
+		}
+
+		&.prioritizer-cell {
+			&_id {
+				* {
+					color: $color;
+					border-color: $color;
+				}
+			}
+		}
+	}
+
+	#{$target} {
+		*:not(a) {
+			color: $color;
+		}
+	}
+}
+
 .prioritizer {
 	a {
 		color: #349ef3;
@@ -36,9 +75,25 @@ body {
 	}
 
 	&-date {
+		white-space: nowrap;
+
 		&_urgent {
 			color: #F44336;
 			border-bottom: 1px solid;
+		}
+	}
+
+	&-row {
+		&_isBug {
+			@include markedRow(#FF9800, ".prioritizer-cell_tracker");
+		}
+
+		&_inProgress {
+			@include markedRow(#4CAF50, ".prioritizer-cell_status");
+		}
+
+		&_needComment {
+			@include markedRow(#FF5722, ".prioritizer-cell_status");
 		}
 	}
 }

@@ -1,11 +1,15 @@
 import React from 'react';
 import moment from 'moment';
 import classnames from 'classnames';
-import Paper from 'material-ui/Paper';
-import Typography from 'material-ui/Typography';
-import { CircularProgress } from 'material-ui/Progress';
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
-import RefreshIcon from 'material-ui-icons/Refresh';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 class Main extends React.Component {
 	constructor() {
@@ -96,6 +100,7 @@ class Main extends React.Component {
 							<TableHead>
 								<TableRow>
 									<TableCell>ID</TableCell>
+									<TableCell>Type</TableCell>
 									<TableCell>Status</TableCell>
 									<TableCell>Subject</TableCell>
 									<TableCell>Phase Deadline</TableCell>
@@ -104,8 +109,12 @@ class Main extends React.Component {
 
 							<TableBody>
 								{this.state.tasks.map(task => (
-									<TableRow key={task.id}>
-										<TableCell>
+									<TableRow key={task.id} className={classnames('prioritizer-row', {
+										'prioritizer-row_inProgress': task.inProgress,
+										'prioritizer-row_isBug': task.isBug,
+										'prioritizer-row_needComment': task.needComment
+									})}>
+										<TableCell className="prioritizer-cell prioritizer-cell_id">
 											<Typography>
 												<a href={`http://helpdesk.nemo.travel/issues/${task.id}`} target="_blank">
 													{task.id}
@@ -113,13 +122,19 @@ class Main extends React.Component {
 											</Typography>
 										</TableCell>
 
-										<TableCell>
+										<TableCell className="prioritizer-cell prioritizer-cell_tracker">
+											<Typography>
+												{task.tracker.name}
+											</Typography>
+										</TableCell>
+
+										<TableCell className="prioritizer-cell prioritizer-cell_status">
 											<Typography>
 												{task.status.name}
 											</Typography>
 										</TableCell>
 
-										<TableCell>
+										<TableCell className="prioritizer-cell prioritizer-cell_subject">
 											<Typography>
 												<a href={`http://helpdesk.nemo.travel/issues/${task.id}`} target="_blank">
 													{task.subject}
@@ -127,7 +142,7 @@ class Main extends React.Component {
 											</Typography>
 										</TableCell>
 
-										<TableCell>
+										<TableCell className="prioritizer-cell prioritizer-cell_date">
 											{this.getPhaseDeadline(task)}
 										</TableCell>
 									</TableRow>
