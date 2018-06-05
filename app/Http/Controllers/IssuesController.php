@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redis;
-use GuzzleHttp\Client;
 
 class IssuesController extends Controller {
 	
@@ -14,11 +13,6 @@ class IssuesController extends Controller {
 	const BUG_TRACKER_ID = 1;
 	const IN_PROGRESS_STATUS_ID = 2;
 	const NEED_COMMENTS_STATUS_ID = 4;
-	
-	/**
-	 * @var Client
-	 */
-	protected $client = null;
 	
 	/**
 	 * @var bool
@@ -37,14 +31,7 @@ class IssuesController extends Controller {
 	];
 	
 	public function __construct() {
-		header('Access-Control-Allow-Origin: *');
-		
-		$this->client = new Client([
-			'base_uri' => env('REDMINE_API_URL'),
-			'headers'  => [
-				'X-Redmine-API-Key' => env('REDMINE_API_KEY'),
-			],
-		]);
+		parent::__construct();
 		
 		$this->isBugsDay = date('N') === static::BUGS_DAY_INDEX;
 	}
@@ -173,15 +160,6 @@ class IssuesController extends Controller {
 	}
 	
 	/**
-	 * @param string $text
-	 *
-	 * @return array
-	 */
-	protected function error(string $text) {
-		return abort(500, $text);
-	}
-	
-	/**
 	 * @param string $userId
 	 *
 	 * @return \stdClass
@@ -205,7 +183,7 @@ class IssuesController extends Controller {
 	 */
 	protected function getIssuesForUser(string $userId): array {
 		$response = $this->makeRedmineRequest('issues', [
-			'assigned_to_id' => $userId,
+			'assigned_to_id' => $userId ? $userId : 'current',
 		]);
 		
 		if (!isset($response->issues)) {
@@ -213,25 +191,5 @@ class IssuesController extends Controller {
 		}
 		
 		return $response->issues;
-	}
-	
-	/**
-	 * @param string $uri
-	 * @param array $params
-	 *
-	 * @return \stdClass
-	 */
-	protected function makeRedmineRequest(string $uri, array $params = []): \stdClass {
-		$defaultParams = [
-			'assigned_to_id' => 'me',
-		];
-		
-		$requestParams = array_merge($defaultParams, $params);
-		
-		$response = $this->client->get($uri . '.json', [
-			'query' => $requestParams,
-		]);
-		
-		return json_decode($response->getBody()->getContents());
 	}
 }
