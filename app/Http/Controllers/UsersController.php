@@ -33,18 +33,44 @@ class UsersController extends Controller {
 		];
 	}
 	
-	
 	/**
 	 * @return array
 	 * @throws \Exception
 	 */
 	protected function getUsersList(): array {
-		$response = $this->makeRedmineRequest('users');
+		$limit = 100;
+		$offset = 0;
 		
-		if (!isset($response->users)) {
-			throw new \Exception('No users found');
+		$response = $this->getUsers($limit, $offset);
+		$users = $response->users;
+		
+		$totalCount = (int) $response->total_count;
+		$iterations = ceil($totalCount / $limit);
+		
+		// Redmine allows us to fetch only 100 items per request.
+		for ($i = 1; $i < $iterations; $i++) {
+			$offset = $i * 100;
+			$response = $this->getUsers($limit, $offset);
+			$users = array_merge($users, $response->users);
 		}
 		
-		return $response->users;
+		return $users;
+	}
+	
+	/**
+	 * @param int $limit
+	 * @param int $offset
+	 *
+	 * @return \stdClass
+	 */
+	protected function getUsers($limit, $offset) {
+		return $this->makeRedmineRequest('users', [
+			// Get only active users.
+			'status' => 1,
+			// Max limit is 100 :(
+			'limit'  => $limit,
+			// Start index.
+			'offset' => $offset,
+		]);
 	}
 }
