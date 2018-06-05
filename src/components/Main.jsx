@@ -419,6 +419,7 @@ class Main extends React.Component {
 									onChange={this.selectUser}
 									placeholder="Enter your name"
 									id="react-select-single"
+									autoFocus={true}
 									inputProps={{
 										classes: this.props.classes,
 										name: 'react-select-single',
