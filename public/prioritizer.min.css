@@ -23,11 +23,24 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 30px;
+}
+
+.prioritizer-title__wrapper {
+  position: relative;
 }
 
 .prioritizer-title__icon {
+  position: absolute;
+  right: -35px;
+  top: 50%;
+  display: flex;
+  align-items: center;
   margin-left: 10px;
+  margin-top: 2px;
   cursor: pointer;
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
 }
 
 .prioritizer-loader {

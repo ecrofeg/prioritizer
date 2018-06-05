@@ -79,13 +79,17 @@ class Main extends React.Component {
 			<Paper className="prioritizer__wrapper">
 				{this.state.user ? (
 					<div className="prioritizer-title">
-						<Typography variant="display1" gutterBottom={true}>
-							{this.state.user.firstname} {this.state.user.lastname}
-						</Typography>
+						<div className="prioritizer-title__wrapper">
+							<Typography variant="display1">
+								{this.state.user.firstname} {this.state.user.lastname}
+							</Typography>
 
-						<span className="prioritizer-title__icon" title="Refresh" onClick={this.onRefreshClick}>
-							<RefreshIcon color="secondary"/>
-						</span>
+							{!this.state.isLoading ? (
+								<span className="prioritizer-title__icon" title="Refresh" onClick={this.onRefreshClick}>
+									<RefreshIcon color="secondary"/>
+								</span>
+							) : null}
+						</div>
 					</div>
 				) : null}
 
