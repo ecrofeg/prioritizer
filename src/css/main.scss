@@ -108,7 +108,7 @@ body {
 		white-space: nowrap;
 
 		&_urgent {
-			color: #F44336;
+			color: #F44336 !important;
 			border-bottom: 1px solid;
 		}
 	}
