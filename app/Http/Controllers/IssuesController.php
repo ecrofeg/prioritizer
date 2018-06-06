@@ -11,8 +11,10 @@ class IssuesController extends Controller {
 	const BUGS_DAY_INDEX = '3';
 	const DEADLINE_FOR_PLAN_ID = 25;
 	const BUG_TRACKER_ID = 1;
+	
 	const IN_PROGRESS_STATUS_ID = 2;
 	const NEED_COMMENTS_STATUS_ID = 4;
+	const TESTED_STATUS_ID = 11;
 	
 	/**
 	 * @var bool
@@ -91,6 +93,7 @@ class IssuesController extends Controller {
 		$issue->inProgress = $issue->status->id === static::IN_PROGRESS_STATUS_ID;
 		$issue->isBug = $issue->tracker->id === static::BUG_TRACKER_ID;
 		$issue->needComment = $issue->status->id === static::NEED_COMMENTS_STATUS_ID;
+		$issue->tested = $issue->status->id === static::TESTED_STATUS_ID;
 		
 		return $issue;
 	}

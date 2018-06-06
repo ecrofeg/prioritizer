@@ -118,7 +118,7 @@ body {
 			@include markedRow(#FF9800, ".prioritizer-cell_tracker");
 		}
 
-		&_inProgress {
+		&_inProgress, &_tested {
 			@include markedRow(#4CAF50, ".prioritizer-cell_status");
 		}
 

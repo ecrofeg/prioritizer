@@ -14,10 +14,31 @@ import Select from 'react-select';
 import Input from '@material-ui/core/Input';
 import { withStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
+
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import CancelIcon from '@material-ui/icons/Cancel';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import ClearIcon from '@material-ui/icons/Clear';
+import HourglassEmpty from '@material-ui/icons/HourglassEmpty';
+import Pause from '@material-ui/icons/Pause';
+import Done from '@material-ui/icons/Done';
+
+const statusIcons = {
+	// Новый
+	'1': '',
+	// В разработке
+	'2': '',
+	// В работу
+	'12': '',
+	// На паузе
+	'13': <Pause/>,
+	// Ожидание
+	'15': <HourglassEmpty/>,
+	// Решен
+	'3': <Done/>,
+	// Протестирован
+	'11': <Done/>
+};
 
 class Option extends React.Component {
 	handleClick = event => {
@@ -372,6 +393,7 @@ class Main extends React.Component {
 									{this.state.tasks.map(task => (
 										<TableRow key={task.id} className={classnames('prioritizer-row', {
 											'prioritizer-row_inProgress': task.inProgress,
+											'prioritizer-row_tested': task.tested,
 											'prioritizer-row_isBug': task.isBug,
 											'prioritizer-row_needComment': task.needComment
 										})}>
@@ -390,9 +412,13 @@ class Main extends React.Component {
 											</TableCell>
 
 											<TableCell className="prioritizer-cell prioritizer-cell_status">
-												<Typography>
-													{task.status.name}
-												</Typography>
+												<div className="prioritizer-cell__wrapper">
+													{statusIcons[task.status.id] ? statusIcons[task.status.id] : ''}
+
+													<Typography>
+														{task.status.name}
+													</Typography>
+												</div>
 											</TableCell>
 
 											<TableCell className="prioritizer-cell prioritizer-cell_subject">
