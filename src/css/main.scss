@@ -126,4 +126,14 @@ body {
 			@include markedRow(#FF5722, ".prioritizer-cell_status");
 		}
 	}
+
+	&-cell {
+		&_id {
+			padding-right: 20px !important;
+		}
+
+		&_project {
+			white-space: nowrap;
+		}
+	}
 }

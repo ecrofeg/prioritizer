@@ -106,12 +106,19 @@ class IssuesController extends Controller {
 	protected function getPriorityForIssue(\stdClass $issue): int {
 		$result = $this->prioritiesWeight[$issue->priority->id];
 		$deadlineForIssue = $this->issueIsInPlan($issue);
-		
-		// Если задача со статусом "Требует комментария", то повышаем приоритет.
-		// Такие задачи должны разбираться постоянно, и если задача занимает
-		// больше 5-10 минут, то надо сменить ей статус на другой.
-		if ($issue->status->id === static::NEED_COMMENTS_STATUS_ID) {
-			$result += 30;
+
+		switch ($issue->status->id) {
+			// Если задача со статусом "Требует комментария", то повышаем приоритет.
+			// Такие задачи должны разбираться постоянно, и если задача занимает
+			// больше 5-10 минут, то надо сменить ей статус на другой.
+			case static::NEED_COMMENTS_STATUS_ID:
+				$result += 30;
+				break;
+
+			// Задачи "В разработке" всегда отображаем сверху.
+			case static::IN_PROGRESS_STATUS_ID:
+				$result += 100;
+				break;
 		}
 		
 		if ($deadlineForIssue) {
@@ -185,14 +192,36 @@ class IssuesController extends Controller {
 	 * @throws \Exception
 	 */
 	protected function getIssuesForUser(string $userId): array {
-		$response = $this->makeRedmineRequest('issues', [
-			'assigned_to_id' => $userId ? $userId : 'current',
-		]);
+		$limit = 100;
+		$offset = 0;
+
+		$response = $this->getIssues($userId, $limit, $offset);
+		$issues = $response->issues;
+
+		$totalCount = (int) $response->total_count;
+		$iterations = ceil($totalCount / $limit);
 		
-		if (!isset($response->issues)) {
-			throw new \Exception('No issues found');
+		for ($i = 1; $i < $iterations; $i++) {
+			$offset = $i * 100;
+			$response = $this->getIssues($userId, $limit, $offset);
+			$issues = array_merge($issues, $response->issues);
 		}
 		
-		return $response->issues;
+		return $issues;
+	}
+
+	/**
+	 * @param int $userId
+	 * @param int $limit
+	 * @param int $offset
+	 * 
+	 * @return \stdClass
+	 */
+	protected function getIssues($userId, $limit, $offset): \stdClass {
+		return $this->makeRedmineRequest('issues', [
+			'assigned_to_id' => $userId ? $userId : 'current',
+			'limit'          => $limit,
+			'offset'         => $offset,
+		]);
 	}
 }
