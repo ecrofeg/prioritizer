@@ -19,25 +19,39 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import CancelIcon from '@material-ui/icons/Cancel';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import ClearIcon from '@material-ui/icons/Clear';
-import HourglassEmpty from '@material-ui/icons/HourglassEmpty';
-import Pause from '@material-ui/icons/Pause';
-import Done from '@material-ui/icons/Done';
+import AccessTime from '@material-ui/icons/AccessTime';
+import PauseCircleOutline from '@material-ui/icons/PauseCircleOutline';
+import CheckCircle from '@material-ui/icons/CheckCircle';
+import Timelapse from '@material-ui/icons/Timelapse';
+import PlayCircleOutline from '@material-ui/icons/PlayCircleOutline';
+import AddCircle from '@material-ui/icons/NewReleases';
+import Comment from '@material-ui/icons/Comment';
 
 const statusIcons = {
 	// Новый
-	'1': '',
+	'1': <AddCircle/>,
 	// В разработке
-	'2': '',
+	'2': <Timelapse/>,
+	// Требует комментария
+	'4': <Comment/>,
+	// На тестировании
+	'14': <Timelapse/>,
 	// В работу
-	'12': '',
+	'12': <PlayCircleOutline/>,
+	// For testing
+	'16': <PlayCircleOutline/>,
+	// For documenting
+	'18': <PlayCircleOutline/>,
 	// На паузе
-	'13': <Pause/>,
+	'13': <PauseCircleOutline/>,
 	// Ожидание
-	'15': <HourglassEmpty/>,
+	'15': <AccessTime/>,
+	// For review
+	'17': <Comment/>,
 	// Решен
-	'3': <Done/>,
+	'3': <CheckCircle/>,
 	// Протестирован
-	'11': <Done/>
+	'11': <CheckCircle/>
 };
 
 class Option extends React.Component {
@@ -381,13 +395,13 @@ class Main extends React.Component {
 						this.state.user ? (
 							<Table>
 								<TableHead>
-									<TableRow>
-										<TableCell>ID</TableCell>
-										<TableCell>Type</TableCell>
-										<TableCell>Project</TableCell>
-										<TableCell>Status</TableCell>
-										<TableCell>Subject</TableCell>
-										<TableCell>Phase Deadline</TableCell>
+									<TableRow className="prioritizer-row">
+										<TableCell className="prioritizer-col prioritizer-col_id">ID</TableCell>
+										<TableCell className="prioritizer-col prioritizer-col_project">Project</TableCell>
+										<TableCell className="prioritizer-col prioritizer-col_tracker">Type</TableCell>
+										<TableCell className="prioritizer-col prioritizer-col_statuc">Status</TableCell>
+										<TableCell className="prioritizer-col prioritizer-col_subject">Subject</TableCell>
+										<TableCell className="prioritizer-col prioritizer-col_date">Phase Deadline</TableCell>
 									</TableRow>
 								</TableHead>
 
@@ -395,8 +409,13 @@ class Main extends React.Component {
 									{this.state.tasks.map(task => (
 										<TableRow key={task.id} className={classnames('prioritizer-row', {
 											'prioritizer-row_inProgress': task.inProgress,
-											'prioritizer-row_tested': task.tested,
+											'prioritizer-row_testingInProgress': task.testingInProgress,
+											'prioritizer-row_isNew': task.isNew,
+											'prioritizer-row_isTested': task.isTested,
+											'prioritizer-row_isDone': task.isDone,
 											'prioritizer-row_isBug': task.isBug,
+											'prioritizer-row_isPaused': task.isPaused,
+											'prioritizer-row_isPending': task.isPending,
 											'prioritizer-row_needComment': task.needComment
 										})}>
 											<TableCell className="prioritizer-cell prioritizer-cell_id">

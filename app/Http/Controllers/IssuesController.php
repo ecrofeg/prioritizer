@@ -12,9 +12,14 @@ class IssuesController extends Controller {
 	const DEADLINE_FOR_PLAN_ID = 25;
 	const BUG_TRACKER_ID = 1;
 	
+	const NEW_STATUS_ID = 1;
 	const IN_PROGRESS_STATUS_ID = 2;
+	const DONE_STATUS_ID = 3;
 	const NEED_COMMENTS_STATUS_ID = 4;
 	const TESTED_STATUS_ID = 11;
+	const PAUSED_STATUS_ID = 13;
+	const TESTING_IN_PROGRESS_STATUS_ID = 14;
+	const PENDING_STATUS_ID = 15;
 	
 	/**
 	 * @var bool
@@ -91,9 +96,14 @@ class IssuesController extends Controller {
 	 */
 	protected function parseIssue(\stdClass $issue): \stdClass {
 		$issue->inProgress = $issue->status->id === static::IN_PROGRESS_STATUS_ID;
+		$issue->testingInProgress = $issue->status->id === static::TESTING_IN_PROGRESS_STATUS_ID;
 		$issue->isBug = $issue->tracker->id === static::BUG_TRACKER_ID;
 		$issue->needComment = $issue->status->id === static::NEED_COMMENTS_STATUS_ID;
-		$issue->tested = $issue->status->id === static::TESTED_STATUS_ID;
+		$issue->isTested = $issue->status->id === static::TESTED_STATUS_ID;
+		$issue->isDone = $issue->status->id === static::DONE_STATUS_ID;
+		$issue->isPaused = $issue->status->id === static::PAUSED_STATUS_ID;
+		$issue->isPending = $issue->status->id === static::PENDING_STATUS_ID;
+		$issue->isNew = $issue->status->id === static::NEW_STATUS_ID;
 		
 		return $issue;
 	}
@@ -117,6 +127,7 @@ class IssuesController extends Controller {
 
 			// Задачи "В разработке" всегда отображаем сверху.
 			case static::IN_PROGRESS_STATUS_ID:
+			case static::TESTING_IN_PROGRESS_STATUS_ID:
 				$result += 100;
 				break;
 		}

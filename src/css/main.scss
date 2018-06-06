@@ -1,3 +1,5 @@
+@import "~react-select/dist/react-select.css";
+
 * {
 	margin: 0;
 	padding: 0;
@@ -48,6 +50,10 @@ body {
 
 .prioritizer {
 	margin-bottom: 30px;
+
+	td, th {
+		padding: 4px 24px;
+	}
 
 	a {
 		color: #349ef3;
@@ -113,27 +119,71 @@ body {
 		}
 	}
 
+	&-col {
+		&_id {
+			padding-right: 20px !important;
+		}
+	}
+
 	&-row {
+		th:not(.prioritizer-col_subject) {
+			text-align: center;
+		}
+
 		&_isBug {
 			@include markedRow(#FF9800, ".prioritizer-cell_tracker");
 		}
 
-		&_inProgress, &_tested {
+		&_inProgress,
+		&_isTested,
+		&_isDone,
+		&_isNew,
+		&_testingInProgress {
 			@include markedRow(#4CAF50, ".prioritizer-cell_status");
 		}
 
 		&_needComment {
 			@include markedRow(#FF5722, ".prioritizer-cell_status");
 		}
+
+		&_isPaused, &_isPending {
+			opacity: 0.4;
+			transition: opacity 0.2s ease-in-out;
+
+			&:hover {
+				opacity: 1;
+			}
+		}
 	}
 
 	&-cell {
+		&:not(&_subject) {
+			text-align: center;
+
+			p {
+				text-align: center;
+			}
+		}
+
 		&_id {
 			padding-right: 20px !important;
 		}
 
-		&_project {
+		&_status, &_tracker {
 			white-space: nowrap;
+		}
+
+		&__wrapper {
+			display: flex;
+			align-items: center;
+			text-align: center;
+			justify-content: center;
+			white-space: nowrap;
+
+			svg {
+				width: 20px;
+				margin-right: 5px;
+			}
 		}
 	}
 }
