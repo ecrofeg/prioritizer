@@ -130,6 +130,11 @@ class IssuesController extends Controller {
 			case static::TESTING_IN_PROGRESS_STATUS_ID:
 				$result += 100;
 				break;
+
+			case static::PAUSED_STATUS_ID:
+			case static::PENDING_STATUS_ID:
+				$result -= 30;
+				break;
 		}
 		
 		if ($deadlineForIssue) {
