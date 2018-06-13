@@ -142,7 +142,8 @@ body {
 			@include markedRow(#4CAF50, ".prioritizer-cell_status");
 		}
 
-		&_needComment {
+		&_needComment,
+		&_isCritical {
 			@include markedRow(#FF5722, ".prioritizer-cell_status");
 		}
 

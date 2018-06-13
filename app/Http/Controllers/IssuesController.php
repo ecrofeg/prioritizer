@@ -16,6 +16,7 @@ class IssuesController extends Controller {
 	const IN_PROGRESS_STATUS_ID = 2;
 	const DONE_STATUS_ID = 3;
 	const NEED_COMMENTS_STATUS_ID = 4;
+	const NEED_TO_ANALYZE_STATUS_ID = 31;
 	const TESTED_STATUS_ID = 11;
 	const PAUSED_STATUS_ID = 13;
 	const TESTING_IN_PROGRESS_STATUS_ID = 14;
@@ -122,6 +123,7 @@ class IssuesController extends Controller {
 			// Такие задачи должны разбираться постоянно, и если задача занимает
 			// больше 5-10 минут, то надо сменить ей статус на другой.
 			case static::NEED_COMMENTS_STATUS_ID:
+			case static::NEED_TO_ANALYZE_STATUS_ID:
 				$result += 30;
 				break;
 

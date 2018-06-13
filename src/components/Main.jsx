@@ -416,7 +416,8 @@ class Main extends React.Component {
 											'prioritizer-row_isBug': task.isBug,
 											'prioritizer-row_isPaused': task.isPaused,
 											'prioritizer-row_isPending': task.isPending,
-											'prioritizer-row_needComment': task.needComment
+											'prioritizer-row_needComment': task.needComment,
+											'prioritizer-row_isCritical': task.rating >= 100,
 										})}>
 											<TableCell className="prioritizer-cell prioritizer-cell_id">
 												<Typography>
