@@ -467,7 +467,6 @@ class Main extends React.Component {
 													<Button
 														variant="raised"
 														color="primary"
-														linkButton={true}
 														target="_blank"
 														href={task.reviewURL}
 													>

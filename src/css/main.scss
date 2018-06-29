@@ -10,12 +10,6 @@ body {
 }
 
 @mixin markedRow($color, $target) {
-	.prioritizer-cell:not(.prioritizer-cell_review) {
-		*:not(a) {
-			color: inherit;
-		}
-	}
-
 	td:first-of-type {
 		position: relative;
 
@@ -137,9 +131,12 @@ body {
 		&_inProgress,
 		&_isTested,
 		&_isDone,
-		&_isNew,
 		&_testingInProgress {
 			@include markedRow(#4CAF50, ".prioritizer-cell_status");
+		}
+
+		&_isNew {
+			@include markedRow(#009688, ".prioritizer-cell_status");
 		}
 
 		&_needComment,
