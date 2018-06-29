@@ -2,6 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import classnames from 'classnames';
 import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Table from '@material-ui/core/Table';
@@ -335,7 +336,6 @@ class Main extends React.Component {
 		else {
 			const deadlineDate = moment(deadline.value);
 			const today = moment();
-			console.log(today);
 			const isUrgent = deadlineDate && (deadlineDate.isSame(today, 'day') || (deadlineDate.diff(today, 'days') < 2));
 
 			return (
@@ -402,6 +402,7 @@ class Main extends React.Component {
 										<TableCell className="prioritizer-col prioritizer-col_statuc">Status</TableCell>
 										<TableCell className="prioritizer-col prioritizer-col_subject">Subject</TableCell>
 										<TableCell className="prioritizer-col prioritizer-col_date">Phase Deadline</TableCell>
+										<TableCell className="prioritizer-col prioritizer-col_review">Review Page</TableCell>
 									</TableRow>
 								</TableHead>
 
@@ -459,6 +460,20 @@ class Main extends React.Component {
 
 											<TableCell className="prioritizer-cell prioritizer-cell_date">
 												{this.getPhaseDeadline(task)}
+											</TableCell>
+
+											<TableCell className="prioritizer-cell prioritizer-cell_review">
+												{task.reviewURL ? (
+													<Button
+														variant="raised"
+														color="primary"
+														linkButton={true}
+														target="_blank"
+														href={task.reviewURL}
+													>
+														REVIEW
+													</Button>
+												) : '—'}
 											</TableCell>
 										</TableRow>
 									))}

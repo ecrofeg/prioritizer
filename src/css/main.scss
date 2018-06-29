@@ -10,7 +10,7 @@ body {
 }
 
 @mixin markedRow($color, $target) {
-	.prioritizer-cell {
+	.prioritizer-cell:not(.prioritizer-cell_review) {
 		*:not(a) {
 			color: inherit;
 		}
@@ -55,14 +55,14 @@ body {
 		padding: 4px 24px;
 	}
 
-	a {
+	a:not([role="button"]) {
 		color: #349ef3;
 		text-decoration: none;
 		border-bottom: 1px solid #349ef3;
 	}
 
 	&__wrapper {
-		width: 1280px;
+		width: 1420px;
 		margin: 20px auto 0;
 		padding: 20px;
 	}

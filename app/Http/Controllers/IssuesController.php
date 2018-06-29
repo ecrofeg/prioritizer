@@ -105,6 +105,7 @@ class IssuesController extends Controller {
 		$issue->isPaused = $issue->status->id === static::PAUSED_STATUS_ID;
 		$issue->isPending = $issue->status->id === static::PENDING_STATUS_ID;
 		$issue->isNew = $issue->status->id === static::NEW_STATUS_ID;
+		$issue->reviewURL = $this->getReviewInfo($issue->id);
 		
 		return $issue;
 	}
@@ -229,17 +230,48 @@ class IssuesController extends Controller {
 	}
 
 	/**
-	 * @param int $userId
+	 * @param string $userId
 	 * @param int $limit
 	 * @param int $offset
 	 * 
 	 * @return \stdClass
 	 */
-	protected function getIssues($userId, $limit, $offset): \stdClass {
+	protected function getIssues(string $userId, int $limit, int $offset): \stdClass {
 		return $this->makeRedmineRequest('issues', [
 			'assigned_to_id' => $userId ? $userId : 'current',
 			'limit'          => $limit,
 			'offset'         => $offset,
 		]);
+	}
+	
+	/**
+	 * @param string $issueId
+	 *
+	 * @return string
+	 */
+	protected function getReviewInfo(string $issueId): string {
+		$result = '';
+		$upsourceURL = env('UPSOURCE_API_URL');
+		$upsourceUsername = env('UPSOURCE_API_USERNAME');
+		$upsourcePassword = env('UPSOURCE_API_PASSWORD');
+		$urlParams = json_encode([
+			'query' => $issueId,
+			'limit' => 10
+		]);
+		
+		$response = $this->client->get($upsourceURL . '/~rpc/getReviews?params=' . $urlParams, [
+			'headers' => [
+				'Authorization' => 'Basic ' . base64_encode($upsourceUsername . ':' . $upsourcePassword)
+			]
+		]);
+		
+		$response = json_decode($response->getBody()->getContents());
+		
+		if ($response && isset($response->result->totalCount) && $response->result->totalCount === 1) {
+			$review = $response->result->reviews[0];
+			$result = $upsourceURL . '/' . $review->reviewId->projectId . '/review/' . $review->reviewId->reviewId;
+		}
+		
+		return $result;
 	}
 }
