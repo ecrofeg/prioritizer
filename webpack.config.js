@@ -1,7 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
+const typescriptConfig = require('./webpack.server.config');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const packageJSON = require('./package.json');
 const moduleName = 'prioritizer';
 
 // For DEV mode prepend "NODE_ENV=dev" before "webpack" command.
@@ -19,7 +19,7 @@ const config = {
 	context: __dirname,
 
 	// Entry file.
-	entry: ['babel-polyfill', './src/main.jsx'],
+	entry: ['babel-polyfill', './src/frontend/main.jsx'],
 
 	// Watch for changes in file.
 	watch: isDevMode,
@@ -47,7 +47,7 @@ const config = {
 		// Where to look for modules.
 		modules: [
 			'node_modules',
-			path.resolve(__dirname, 'src'),
+			path.resolve(__dirname, 'src/frontend'),
 			path.resolve(__dirname, 'public')
 		],
 		extensions: ['.js', '.json', '.jsx', '.css']
@@ -67,7 +67,7 @@ const config = {
 					presets: ['es2015', 'stage-0', 'react']
 				},
 				include: [
-					path.resolve(__dirname, 'src')
+					path.resolve(__dirname, 'src/frontend')
 				],
 
 				// Do not parse these folders.
@@ -80,7 +80,7 @@ const config = {
 			{
 				test: /\.scss$/,
 				include: [
-					path.resolve(__dirname, 'src/css')
+					path.resolve(__dirname, 'src/frontend/css')
 				],
 				use: extractSass.extract({
 					use: [
@@ -117,7 +117,7 @@ const config = {
 					mimetype: 'application/font-woff'
 				},
 				include: [
-					path.resolve(__dirname, 'src/css/fonts')
+					path.resolve(__dirname, 'src/frontend/css/fonts')
 				]
 			},
 
@@ -125,7 +125,7 @@ const config = {
 				test: /\.svg$/,
 				loader: 'url-loader',
 				include: [
-					path.resolve(__dirname, 'src/css/images'),
+					path.resolve(__dirname, 'src/frontend/css/images'),
 				],
 				options: {
 					publicPath: '',
@@ -158,10 +158,9 @@ if (!isDevMode) {
 config.plugins.push(
 	new webpack.DefinePlugin({
 		'process.env': {
-			NODE_ENV: JSON.stringify(isDevMode ? 'development' : 'production'),
-			VERSION: JSON.stringify(packageJSON.version)
+			NODE_ENV: JSON.stringify(isDevMode ? 'development' : 'production')
 		}
 	})
 );
 
-module.exports = config;
+module.exports = [ config, typescriptConfig ];

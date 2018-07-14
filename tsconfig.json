@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"outDir": "./build/",
+		"experimentalDecorators": true,
+		"noImplicitAny": true,
+		"module": "commonjs",
+		"target": "ESNext",
+		"jsx": "react",
+		"allowJs": true,
+		"lib": [
+			"es2015",
+			"ES2016",
+			"DOM"
+		]
+	},
+	"exclude": [
+		"node_modules"
+	],
+	"include": [
+		"./src/server/**/*"
+	]
+}
