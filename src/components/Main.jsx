@@ -8,6 +8,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
+import IconButton from '@material-ui/core/IconButton';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import RefreshIcon from '@material-ui/icons/Refresh';
@@ -27,6 +28,7 @@ import Timelapse from '@material-ui/icons/Timelapse';
 import PlayCircleOutline from '@material-ui/icons/PlayCircleOutline';
 import AddCircle from '@material-ui/icons/NewReleases';
 import Comment from '@material-ui/icons/Comment';
+import EyeIcon from '@material-ui/icons/RemoveRedEye';
 
 const statusIcons = {
 	// Новый
@@ -331,7 +333,7 @@ class Main extends React.Component {
 		const deadline = task.custom_fields.find(field => field.id === 25);
 
 		if (!deadline || !deadline.value) {
-			return '—';
+			return '';
 		}
 		else {
 			const deadlineDate = moment(deadline.value);
@@ -401,8 +403,8 @@ class Main extends React.Component {
 										<TableCell className="prioritizer-col prioritizer-col_tracker">Type</TableCell>
 										<TableCell className="prioritizer-col prioritizer-col_statuc">Status</TableCell>
 										<TableCell className="prioritizer-col prioritizer-col_subject">Subject</TableCell>
-										<TableCell className="prioritizer-col prioritizer-col_date">Phase Deadline</TableCell>
-										<TableCell className="prioritizer-col prioritizer-col_review">Review Page</TableCell>
+										<TableCell className="prioritizer-col prioritizer-col_date">Deadline</TableCell>
+										<TableCell className="prioritizer-col prioritizer-col_review">Review</TableCell>
 									</TableRow>
 								</TableHead>
 
@@ -464,15 +466,10 @@ class Main extends React.Component {
 
 											<TableCell className="prioritizer-cell prioritizer-cell_review">
 												{task.reviewURL ? (
-													<Button
-														variant="raised"
-														color="primary"
-														target="_blank"
-														href={task.reviewURL}
-													>
-														REVIEW
-													</Button>
-												) : '—'}
+													<IconButton target="_blank" href={task.reviewURL}>
+														<EyeIcon/>
+													</IconButton>
+												) : ''}
 											</TableCell>
 										</TableRow>
 									))}
